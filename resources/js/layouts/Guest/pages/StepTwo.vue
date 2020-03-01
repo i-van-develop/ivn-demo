@@ -43,32 +43,48 @@
         },
         async mounted() {
             await this.$store.dispatch('guest/loadFromLocalStorage');
-            this.name = this.$store.state.guest.name;
-            const backgroundAnimation = new Animation(this.$refs['background-driver'],
-                createMultiple([
-                    { prop: 'width', from: 100, to: 65 },
-                    { prop: 'left', from: 0, to: 35 }
-                ], {
-                    duration: 1000,
-                    maskFunction: (v) => `${ v }%`,
-                    timingFunction: TimingFunctions.easeInOutQuad
-                }),
-                { delay: 500 }
-            );
+            const name = this.$store.state.guest.name;
+            if (name){
+                const backgroundAnimation = new Animation(this.$refs['background-driver'],
+                    createMultiple([
+                        { prop: 'width', from: 100, to: 0 },
+                        { prop: 'left', from: 0, to: 100 }
+                    ], {
+                        duration: 1000,
+                        maskFunction: (v) => `${ v }%`,
+                        timingFunction: TimingFunctions.easeInOutQuad
+                    })
+                );
+                await backgroundAnimation.play();
+                await this.$router.push('/guest/step-three');
 
-            const welcomeOneAnimation = new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), { delay: 200 });
-            const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), { delay: 400 });
-            const inputNameAnimation = new Animation(this.$refs['name-input'].$el, opacityAnimation, {
-                beforeHooks: { visibility: 'visible' }
-            });
+            } else {
+                const backgroundAnimation = new Animation(this.$refs['background-driver'],
+                    createMultiple([
+                        { prop: 'width', from: 100, to: 65 },
+                        { prop: 'left', from: 0, to: 35 }
+                    ], {
+                        duration: 1000,
+                        maskFunction: (v) => `${ v }%`,
+                        timingFunction: TimingFunctions.easeInOutQuad
+                    }),
+                    { delay: 500 }
+                );
 
-            await backgroundAnimation.play();
-            await Promise.all([
-                welcomeOneAnimation.play(),
-                welcomeTwoAnimation.play()
-            ]);
-            await inputNameAnimation.play();
-            this.ready = true;
+                const welcomeOneAnimation = new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), { delay: 200 });
+                const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), { delay: 400 });
+                const inputNameAnimation = new Animation(this.$refs['name-input'].$el, opacityAnimation, {
+                    beforeHooks: { visibility: 'visible' }
+                });
+
+                await backgroundAnimation.play();
+                await Promise.all([
+                    welcomeOneAnimation.play(),
+                    welcomeTwoAnimation.play()
+                ]);
+                await inputNameAnimation.play();
+                this.ready = true;
+            }
         },
         computed: {
             nameValid() {
