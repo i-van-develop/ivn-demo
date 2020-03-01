@@ -42,6 +42,7 @@
             };
         },
         async mounted() {
+            await this.$store.dispatch('guest/loadFromLocalStorage');
             this.name = this.$store.state.guest.name;
             const backgroundAnimation = new Animation(this.$refs['background-driver'],
                 createMultiple([
@@ -78,7 +79,7 @@
             async nextStep() {
                 if (this.nameValid && this.ready) {
                     this.ready = false;
-                    this.$store.commit('guest/setName', this.name);
+                    await this.$store.dispatch('guest/setName', this.name);
 
                     const backgroundAnimation = new Animation(this.$refs['background-driver'],
                         createMultiple([

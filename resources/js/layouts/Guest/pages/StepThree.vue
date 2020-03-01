@@ -4,7 +4,7 @@
             <div ref="background-driver" class="background-driver"/>
             <div class="welcome">
                 <div class="centered">
-                    <div ref="welcome-one" class="welcome-one">Hello <span class="color-special">{{$store.state.guest.name}}</span>!
+                    <div ref="welcome-one" class="welcome-one">Hello <span class="color-special">{{name}}</span>!
                     </div>
                     <div ref="welcome-two" class="welcome-two">My name is <span class="color-special">Ivan</span>, I'm
                         <span class="color-special developer">Developer</span></div>
@@ -38,6 +38,8 @@
 
 <script>
     import { createMultiple, createOne, TimingFunctions, Animation } from '~/libs/animation';
+    import {mapState} from 'vuex';
+    import store from '~/store';
 
     const opacityAnimation = createOne('opacity', 0, 1, 1000, {
         timingFunction: TimingFunctions.easeInQuad
@@ -77,6 +79,16 @@
                 ]
             };
         },
+        computed: mapState('guest', ['name']),
+        async beforeRouteEnter(to, from, next){
+            await store.dispatch('guest/loadFromLocalStorage');
+            const {name} = store.state.guest;
+            if (!name){
+                next('/guest/step-two');
+            } else {
+                next();
+            }
+        },
         async mounted() {
             const backgroundAnimation = new Animation(this.$refs['background-driver'],
                 createOne('height', 0, 100, 1000, {
@@ -105,7 +117,8 @@
             const stackLabelAnimation = new Animation(this.$refs['stack-label'], opacityAnimation, { speed: 2 });
 
             const stackAnimation = (rootElem) => {
-                return Promise.all([ ...rootElem.children ].map((child, index) => {
+                const children = (rootElem && rootElem.children) ? [...rootElem.children] : [];
+                return Promise.all(children.map((child, index) => {
                     const stackItemDelay = 200;
                     const stackItemOpacityAnimation = new Animation(child, opacityAnimation, {
                         speed: 2,
