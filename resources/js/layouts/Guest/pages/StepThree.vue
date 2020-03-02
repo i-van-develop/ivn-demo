@@ -42,19 +42,18 @@
     import store from '~/store';
 
     const opacityAnimation = createOne('opacity', 0, 1, 1000, {
-        timingFunction: TimingFunctions.easeInQuad
+        timingFunction: TimingFunctions.easeIn
     });
     const sideExistAnimation = (side) => createMultiple([
         { prop: 'opacity', from: 0, to: 1, duration: 500 },
         { prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${ v }px` }
     ], {
-        timingFunction: TimingFunctions.easeInOutQuad
+        timingFunction: TimingFunctions.easeInOut
     });
 
     const stackItemAnimation = (elem, yFrom, yTo, duration, delay = 0) => new Animation(elem,
         createOne('transform', yFrom, yTo, duration, {
             delay,
-            timingFunction: TimingFunctions.linear,
             maskFunction: (v) => `translateY(${ v }px)`
         })
     );
@@ -92,13 +91,13 @@
         async mounted() {
             const backgroundAnimation = new Animation(this.$refs['background-driver'],
                 createOne('height', 0, 100, 1000, {
-                    timingFunction: TimingFunctions.easeInOutQuad,
+                    timingFunction: TimingFunctions.easeInOut,
                     maskFunction: (v) => `${ v }%`,
                     delay: 300
                 }));
             const downBackgroundAnimation = new Animation(this.$refs['down-background-driver'],
                 createOne('height', 0, 100, 1000, {
-                    timingFunction: TimingFunctions.easeInOutQuad,
+                    timingFunction: TimingFunctions.easeInOut,
                     maskFunction: (v) => `${ v }%`,
                     delay: 300
                 }));

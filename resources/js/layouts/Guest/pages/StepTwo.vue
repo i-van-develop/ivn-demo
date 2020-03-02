@@ -23,13 +23,13 @@
     import CoolInput from '~/components/form/CoolInput';
 
     const opacityAnimation = createOne('opacity', 0, 1, 800, {
-        timingFunction: TimingFunctions.easeInQuad
+        timingFunction: TimingFunctions.easeIn
     });
     const sideExistAnimation = (side) => createMultiple([
         { prop: 'opacity', from: 0, to: 1, duration: 500 },
         { prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${ v }px` }
     ], {
-        timingFunction: TimingFunctions.easeInOutQuad
+        timingFunction: TimingFunctions.easeInOut
     });
 
     export default {
@@ -52,7 +52,7 @@
                     ], {
                         duration: 1000,
                         maskFunction: (v) => `${ v }%`,
-                        timingFunction: TimingFunctions.easeInOutQuad
+                        timingFunction: TimingFunctions.easeInOut
                     })
                 );
                 await backgroundAnimation.play();
@@ -66,7 +66,7 @@
                     ], {
                         duration: 1000,
                         maskFunction: (v) => `${ v }%`,
-                        timingFunction: TimingFunctions.easeInOutQuad
+                        timingFunction: TimingFunctions.easeInOut
                     }),
                     { delay: 500 }
                 );
@@ -104,7 +104,7 @@
                         ], {
                             duration: 1500,
                             maskFunction: (v) => `${ v }%`,
-                            timingFunction: TimingFunctions.easeInOutQuad
+                            timingFunction: TimingFunctions.easeInOut
                         })
                     );
 

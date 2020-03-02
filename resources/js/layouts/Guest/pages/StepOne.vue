@@ -10,7 +10,7 @@
     import {Animation, TimingFunctions, createOne} from '~/libs/animation';
 
     const opacityAnimation = createOne('opacity', 0, 1, 800, {
-        timingFunction: TimingFunctions.easeInQuad
+        timingFunction: TimingFunctions.easeIn
     });
 
     export default {
@@ -29,7 +29,7 @@
             const backgroundAnimation = new Animation(this.$refs['background-driver'],
                 createOne('width', 0, 65, 3000, {
                     maskFunction: (v) => `${v}%`,
-                    timingFunction: TimingFunctions.easeInOutQuad
+                    timingFunction: TimingFunctions.easeInOut
                 })
             );
 
@@ -45,7 +45,7 @@
                 const backgroundAnimation = new Animation(this.$refs['background-driver'],
                     createOne('width', 65, 100, 1000, {
                         maskFunction: (v) => `${v}%`,
-                        timingFunction: TimingFunctions.easeInOutQuad
+                        timingFunction: TimingFunctions.easeInOut
                     })
                 );
 
