@@ -19,7 +19,14 @@
 </template>
 
 <script>
-    import {Animation, TimingFunctions, createOne, createMultiple, parallel} from '~/libs/animation';
+    import {
+        Animation,
+        TimingFunctions,
+        createOne,
+        createMultiple,
+        parallel,
+        AnimationSupervisor
+    } from '~/libs/animation';
     import CoolInput from '~/components/form/CoolInput';
 
     const opacityAnimation = createOne('opacity', 0, 1, 800, {
@@ -37,53 +44,72 @@
         components: {CoolInput},
         data() {
             return {
+                animationSupervisor: new AnimationSupervisor(),
                 name: '',
                 ready: false
             };
+        },
+        beforeDestroy() {
+            this.animationSupervisor.stopAll();
         },
         async mounted() {
             await this.$store.dispatch('guest/loadFromLocalStorage');
             const name = this.$store.state.guest.name;
             if (name) {
-                const backgroundAnimation = new Animation(this.$refs['background-driver'],
-                    createMultiple([
-                        {prop: 'width', from: 100, to: 0},
-                        {prop: 'left', from: 0, to: 100}
-                    ], {
-                        duration: 1000,
-                        maskFunction: (v) => `${v}%`,
-                        timingFunction: TimingFunctions.easeInOut
-                    })
-                );
-                await backgroundAnimation.play();
-                await this.$router.push('/guest/step-three');
+                const backgroundAnimation = this.animationSupervisor.add(
+                    new Animation(this.$refs['background-driver'],
+                        createMultiple([
+                            {prop: 'width', from: 100, to: 0},
+                            {prop: 'left', from: 0, to: 100}
+                        ], {
+                            duration: 1000,
+                            maskFunction: (v) => `${v}%`,
+                            timingFunction: TimingFunctions.easeInOut
+                        })
+                    ));
 
+                try {
+                    await backgroundAnimation.play();
+                    this.animationSupervisor.clearAll();
+                    await this.$router.push('/guest/step-three');
+                } catch (e) {
+
+                }
             } else {
-                const backgroundAnimation = new Animation(this.$refs['background-driver'],
-                    createMultiple([
-                        {prop: 'width', from: 100, to: 65},
-                        {prop: 'left', from: 0, to: 35}
-                    ], {
-                        duration: 1000,
-                        maskFunction: (v) => `${v}%`,
-                        timingFunction: TimingFunctions.easeInOut
-                    }),
-                    {delay: 500}
-                );
+                const backgroundAnimation = this.animationSupervisor.add(
+                    new Animation(this.$refs['background-driver'],
+                        createMultiple([
+                            {prop: 'width', from: 100, to: 65},
+                            {prop: 'left', from: 0, to: 35}
+                        ], {
+                            duration: 1000,
+                            maskFunction: (v) => `${v}%`,
+                            timingFunction: TimingFunctions.easeInOut
+                        }),
+                        {delay: 500}
+                    ));
 
-                const welcomeOneAnimation = new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), {delay: 200});
-                const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), {delay: 400});
-                const inputNameAnimation = new Animation(this.$refs['name-input'].$el, opacityAnimation, {
-                    beforeHooks: {visibility: 'visible'}
-                });
+                const welcomeOneAnimation = this.animationSupervisor.add(
+                    new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), {delay: 200}));
+                const welcomeTwoAnimation = this.animationSupervisor.add(
+                    new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), {delay: 400}));
+                const inputNameAnimation = this.animationSupervisor.add(
+                    new Animation(this.$refs['name-input'].$el, opacityAnimation, {
+                        beforeHooks: {visibility: 'visible'}
+                    }));
 
-                await backgroundAnimation.play();
-                await parallel([
-                    welcomeOneAnimation.play(),
-                    welcomeTwoAnimation.play()
-                ])
-                await inputNameAnimation.play();
-                this.ready = true;
+                try {
+                    await backgroundAnimation.play();
+                    await parallel([
+                        welcomeOneAnimation.play(),
+                        welcomeTwoAnimation.play()
+                    ])
+                    await inputNameAnimation.play();
+                    this.animationSupervisor.clearAll();
+                    this.ready = true;
+                } catch (e) {
+
+                }
             }
         },
         computed: {
@@ -97,26 +123,34 @@
                     this.ready = false;
                     await this.$store.dispatch('guest/setName', this.name);
 
-                    const backgroundAnimation = new Animation(this.$refs['background-driver'],
-                        createMultiple([
-                            {prop: 'width', from: 65, to: 0},
-                            {prop: 'left', from: 35, to: 100}
-                        ], {
-                            duration: 1500,
-                            maskFunction: (v) => `${v}%`,
-                            timingFunction: TimingFunctions.easeInOut
-                        })
-                    );
+                    const backgroundAnimation = this.animationSupervisor.add(
+                        new Animation(this.$refs['background-driver'],
+                            createMultiple([
+                                {prop: 'width', from: 65, to: 0},
+                                {prop: 'left', from: 35, to: 100}
+                            ], {
+                                duration: 1500,
+                                maskFunction: (v) => `${v}%`,
+                                timingFunction: TimingFunctions.easeInOut
+                            })
+                        ));
 
-                    const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], opacityAnimation, {speed: 2});
-                    const inputNameAnimation = new Animation(this.$refs['name-input'].$el, opacityAnimation, {speed: 2});
+                    const welcomeTwoAnimation = this.animationSupervisor.add(
+                        new Animation(this.$refs['welcome-two'], opacityAnimation, {speed: 2}));
+                    const inputNameAnimation = this.animationSupervisor.add(
+                        new Animation(this.$refs['name-input'].$el, opacityAnimation, {speed: 2}));
 
-                    await parallel([
-                        backgroundAnimation.play(),
-                        welcomeTwoAnimation.play(true),
-                        inputNameAnimation.play(true)
-                    ]);
-                    await this.$router.push('/guest/step-three');
+                    try{
+                        await parallel([
+                            backgroundAnimation.play(),
+                            welcomeTwoAnimation.play(true),
+                            inputNameAnimation.play(true)
+                        ]);
+                        this.animationSupervisor.clearAll();
+                        await this.$router.push('/guest/step-three');
+                    } catch (e) {
+
+                    }
                 }
             }
         }

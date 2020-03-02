@@ -28,6 +28,25 @@ export const serial = (animations) => (async () => {
     }
 })();
 
+export class AnimationSupervisor {
+    constructor() {
+        this._animations = [];
+    }
+
+    add(animation){
+        this._animations.push(animation);
+        return animation;
+    }
+    stopAll(){
+        this._animations.forEach(animation => {
+            animation.stop();
+        })
+    }
+    clearAll(){
+        this._animations = [];
+    }
+}
+
 export class Animation {
     constructor(el, transitions, {reverse, delay, speed, beforeHooks, afterHooks} = {}) {
         this.el = el;

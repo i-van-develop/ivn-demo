@@ -24,11 +24,13 @@
             <div ref="down-background-driver" class="down-background-driver">
                 <div class="stack" :class="{'can-hover': canClick}">
                     <div class="technologies" ref="technologies">
-                        <img draggable="false" @click="stackItemClick" v-for="(path, index) in technologies" :key="index" alt="" :src="path" />
+                        <img draggable="false" @click="stackItemClick" v-for="(path, index) in technologies"
+                             :key="index" alt="" :src="path"/>
                     </div>
                     <div ref="stack-label" class="stack-label">My Stack</div>
                     <div class="tech-lang" ref="tech-lang">
-                        <img draggable="false" @click="stackItemClick" v-for="(path, index) in techLang" :key="index" alt="" :src="path" />
+                        <img draggable="false" @click="stackItemClick" v-for="(path, index) in techLang" :key="index"
+                             alt="" :src="path"/>
                     </div>
                 </div>
             </div>
@@ -37,7 +39,15 @@
 </template>
 
 <script>
-    import {createMultiple, createOne, TimingFunctions, Animation, parallel, serial} from '~/libs/animation';
+    import {
+        createMultiple,
+        createOne,
+        TimingFunctions,
+        Animation,
+        parallel,
+        serial,
+        AnimationSupervisor
+    } from '~/libs/animation';
     import {mapState} from 'vuex';
     import store from '~/store';
 
@@ -45,8 +55,8 @@
         timingFunction: TimingFunctions.easeIn
     });
     const sideExistAnimation = (side) => createMultiple([
-        { prop: 'opacity', from: 0, to: 1, duration: 500 },
-        { prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${ v }px` }
+        {prop: 'opacity', from: 0, to: 1, duration: 500},
+        {prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${v}px`}
     ], {
         timingFunction: TimingFunctions.easeInOut
     });
@@ -54,7 +64,7 @@
     const stackItemAnimation = (elem, yFrom, yTo, duration, delay = 0) => new Animation(elem,
         createOne('transform', yFrom, yTo, duration, {
             delay,
-            maskFunction: (v) => `translateY(${ v }px)`
+            maskFunction: (v) => `translateY(${v}px)`
         })
     );
 
@@ -62,6 +72,7 @@
         name: "StepThree",
         data() {
             return {
+                animationSupervisor: new AnimationSupervisor(),
                 canClick: false,
                 technologies: [
                     '/images/logos/laravel.png',
@@ -79,50 +90,60 @@
             };
         },
         computed: mapState('guest', ['name']),
-        async beforeRouteEnter(to, from, next){
+        async beforeRouteEnter(to, from, next) {
             await store.dispatch('guest/loadFromLocalStorage');
             const {name} = store.state.guest;
-            if (!name){
+            if (!name) {
                 next('/guest/step-two');
             } else {
                 next();
             }
         },
+        beforeDestroy() {
+            this.animationSupervisor.stopAll();
+        },
         async mounted() {
-            const backgroundAnimation = new Animation(this.$refs['background-driver'],
+            const backgroundAnimation = this.animationSupervisor.add(new Animation(this.$refs['background-driver'],
                 createOne('height', 0, 100, 1000, {
                     timingFunction: TimingFunctions.easeInOut,
-                    maskFunction: (v) => `${ v }%`,
+                    maskFunction: (v) => `${v}%`,
                     delay: 300
-                }));
-            const downBackgroundAnimation = new Animation(this.$refs['down-background-driver'],
+                })));
+            const downBackgroundAnimation = this.animationSupervisor.add(new Animation(this.$refs['down-background-driver'],
                 createOne('height', 0, 100, 1000, {
                     timingFunction: TimingFunctions.easeInOut,
-                    maskFunction: (v) => `${ v }%`,
+                    maskFunction: (v) => `${v}%`,
+                    delay: 300
+                })));
+
+            const welcomeOneAnimation = this.animationSupervisor.add(
+                new Animation(this.$refs['welcome-one'], sideExistAnimation('left')));
+            const welcomeTwoAnimation = this.animationSupervisor.add(
+                new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), {
+                    delay: 150
+                }));
+            const welcomeThreeAnimation = this.animationSupervisor.add(
+                new Animation(this.$refs['welcome-three'], sideExistAnimation('left'), {
                     delay: 300
                 }));
 
-            const welcomeOneAnimation = new Animation(this.$refs['welcome-one'], sideExistAnimation('left'));
-            const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), {
-                delay: 150
-            });
-            const welcomeThreeAnimation = new Animation(this.$refs['welcome-three'], sideExistAnimation('left'), {
-                delay: 300
-            });
+            const iamImageAnimation = this.animationSupervisor.add(
+                new Animation(this.$refs['iam-image'], opacityAnimation));
+            const iamImageLabelAnimation = this.animationSupervisor.add(
+                new Animation(this.$refs['iam-image-label'], opacityAnimation));
 
-            const iamImageAnimation = new Animation(this.$refs['iam-image'], opacityAnimation);
-            const iamImageLabelAnimation = new Animation(this.$refs['iam-image-label'], opacityAnimation);
-
-            const stackLabelAnimation = new Animation(this.$refs['stack-label'], opacityAnimation, { speed: 2 });
+            const stackLabelAnimation = this.animationSupervisor.add(
+                new Animation(this.$refs['stack-label'], opacityAnimation, {speed: 2}));
 
             const stackAnimation = (rootElem) => {
                 const children = (rootElem && rootElem.children) ? [...rootElem.children] : [];
                 return Promise.all(children.map((child, index) => {
                     const stackItemDelay = 200;
-                    const stackItemOpacityAnimation = new Animation(child, opacityAnimation, {
-                        speed: 2,
-                        delay: index * stackItemDelay
-                    });
+                    const stackItemOpacityAnimation = this.animationSupervisor.add(
+                        new Animation(child, opacityAnimation, {
+                            speed: 2,
+                            delay: index * stackItemDelay
+                        }));
                     return parallel([
                         serial([
                             stackItemAnimation(child, 0, -10, 100, index * stackItemDelay).play(),
@@ -134,32 +155,37 @@
                 }));
             };
 
-            await parallel([
-                backgroundAnimation.play(),
-                downBackgroundAnimation.play()
-            ])
-            await parallel([
-                welcomeOneAnimation.play(),
-                welcomeTwoAnimation.play(),
-                welcomeThreeAnimation.play()
-            ])
-            await parallel([
-                iamImageAnimation.play(),
-                iamImageLabelAnimation.play()
-            ])
+            try{
+                await parallel([
+                    backgroundAnimation.play(),
+                    downBackgroundAnimation.play()
+                ])
+                await parallel([
+                    welcomeOneAnimation.play(),
+                    welcomeTwoAnimation.play(),
+                    welcomeThreeAnimation.play()
+                ])
+                await parallel([
+                    iamImageAnimation.play(),
+                    iamImageLabelAnimation.play()
+                ])
 
 
-            await stackLabelAnimation.play();
-            await stackAnimation(this.$refs['technologies']);
-            await stackAnimation(this.$refs['tech-lang']);
+                await stackLabelAnimation.play();
+                await stackAnimation(this.$refs['technologies']);
+                await stackAnimation(this.$refs['tech-lang']);
 
-            this.canClick = true;
+                this.animationSupervisor.clearAll();
+                this.canClick = true;
+            } catch (e) {
+                console.log('HZ');
+            }
         },
         methods: {
-            async stackItemClick(event){
-                if (this.canClick){
+            async stackItemClick(event) {
+                if (this.canClick) {
                     const elem = event.target;
-                    if (!elem._isAnimate){
+                    if (!elem._isAnimate) {
                         elem._isAnimate = true;
 
                         await stackItemAnimation(elem, 0, -10, 150).play();
@@ -328,10 +354,11 @@
         opacity: 0;
     }
 
-    .can-hover{
+    .can-hover {
         .technologies > *:hover {
             cursor: pointer;
         }
+
         .tech-lang > *:hover {
             cursor: pointer;
         }

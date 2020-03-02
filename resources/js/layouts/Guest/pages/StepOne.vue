@@ -7,7 +7,7 @@
 </template>
 
 <script>
-    import {Animation, TimingFunctions, createOne} from '~/libs/animation';
+    import {Animation, TimingFunctions, createOne, AnimationSupervisor} from '~/libs/animation';
 
     const opacityAnimation = createOne('opacity', 0, 1, 800, {
         timingFunction: TimingFunctions.easeIn
@@ -17,41 +17,57 @@
         name: "StepOne",
         data() {
             return {
-                nextStepAvailable: false
+                nextStepAvailable: false,
+                animationSupervisor: new AnimationSupervisor()
             };
         },
+        beforeDestroy() {
+            this.animationSupervisor.stopAll();
+        },
         async mounted() {
-            const nameAnimation = new Animation(this.$refs['name'], opacityAnimation, {
+            const nameAnimation = this.animationSupervisor.add(new Animation(this.$refs['name'], opacityAnimation, {
                 beforeHooks: {visibility: 'visible'},
                 delay: 300
-            });
+            }));
 
-            const backgroundAnimation = new Animation(this.$refs['background-driver'],
+            const backgroundAnimation = this.animationSupervisor.add(new Animation(this.$refs['background-driver'],
                 createOne('width', 0, 65, 3000, {
                     maskFunction: (v) => `${v}%`,
                     timingFunction: TimingFunctions.easeInOut
                 })
-            );
+            ));
 
-            await nameAnimation.play();
-            await backgroundAnimation.play();
-            await this.nextStep();
+            try {
+                await nameAnimation.play();
+                await backgroundAnimation.play();
+                this.animationSupervisor.stopAll();
+                await this.nextStep();
+            } catch (e) {
+
+            }
         },
         methods: {
             async nextStep() {
-                const welcomeAnimation = new Animation(this.$refs['welcome'], opacityAnimation, {
-                    speed: 2, delay: 2000
-                });
-                const backgroundAnimation = new Animation(this.$refs['background-driver'],
-                    createOne('width', 65, 100, 1000, {
-                        maskFunction: (v) => `${v}%`,
-                        timingFunction: TimingFunctions.easeInOut
-                    })
-                );
+                const welcomeAnimation = this.animationSupervisor.add(
+                    new Animation(this.$refs['welcome'], opacityAnimation, {
+                        speed: 2, delay: 2000
+                    }));
+                const backgroundAnimation = this.animationSupervisor.add(
+                    new Animation(this.$refs['background-driver'],
+                        createOne('width', 65, 100, 1000, {
+                            maskFunction: (v) => `${v}%`,
+                            timingFunction: TimingFunctions.easeInOut
+                        })
+                    ));
 
-                await welcomeAnimation.play(true);
-                await backgroundAnimation.play();
-                await this.$router.push('/guest/step-two');
+                try {
+                    await welcomeAnimation.play(true);
+                    await backgroundAnimation.play();
+                    this.animationSupervisor.stopAll();
+                    await this.$router.push('/guest/step-two');
+                } catch (e) {
+
+                }
             }
         }
     };
