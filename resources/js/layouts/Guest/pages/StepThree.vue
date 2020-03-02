@@ -209,7 +209,7 @@
 
             .iam-image-label {
                 opacity: 0;
-                color: #647cbe;
+                color: $primary-dark-contrast;
                 position: absolute;
                 right: 110%;
                 top: 65%;
@@ -340,7 +340,7 @@
 
     .stack-label {
         height: auto;
-        color: #647cbe;
+        color: $primary-dark-contrast;
         opacity: 0;
 
         &:after {
@@ -397,6 +397,6 @@
     }
 
     .color-special {
-        color: #ae4bf5;
+        color: $special;
     }
 </style>

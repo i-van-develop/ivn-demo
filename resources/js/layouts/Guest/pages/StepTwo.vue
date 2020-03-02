@@ -180,7 +180,7 @@
 
         .welcome-two {
             position: relative;
-            color: #647cbe;
+            color: $primary-dark-contrast;
             font-size: 15px;
             opacity: 0;
         }
@@ -225,6 +225,6 @@
     }
 
     .color-special {
-        color: #ae4bf5;
+        color: $special;
     }
 </style>
