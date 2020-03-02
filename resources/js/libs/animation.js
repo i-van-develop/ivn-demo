@@ -20,14 +20,22 @@ export const createMultiple = (transitions, {duration, delay, maskFunction, timi
     });
 };
 
+export const parallel = (animations) => Promise.all(animations);
+
+export const serial = (animations) => (async () => {
+    for (let i = 0; i < animations.length; ++i) {
+        await animations[i];
+    }
+})();
+
 export class Animation {
-    constructor(el, transitions, {delay, speed, beforeHooks, afterHooks} = {}) {
+    constructor(el, transitions, {reverse, delay, speed, beforeHooks, afterHooks} = {}) {
         this.el = el;
         this.transitions = transitions;
         this.isPlaying = false;
-        this.reversePlaying = false;
         this.promiseCallbacks = null;
         this.startTime = null;
+        this.reversePlaying = reverse ? reverse : false;
         this.globalDelay = delay ? delay : 0;
         this.globalSpeed = speed ? speed : 1;
         this.globalBeforeHooks = beforeHooks ? beforeHooks : {};

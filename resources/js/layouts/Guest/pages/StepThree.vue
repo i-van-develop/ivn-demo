@@ -37,7 +37,7 @@
 </template>
 
 <script>
-    import { createMultiple, createOne, TimingFunctions, Animation } from '~/libs/animation';
+    import {createMultiple, createOne, TimingFunctions, Animation, parallel, serial} from '~/libs/animation';
     import {mapState} from 'vuex';
     import store from '~/store';
 
@@ -123,30 +123,30 @@
                         speed: 2,
                         delay: index * stackItemDelay
                     });
-                    return Promise.all([
-                        (async () => {
-                            await stackItemAnimation(child, 0, -10, 100, index * stackItemDelay).play();
-                            await stackItemAnimation(child, -10, 10, 200, 0).play();
-                            await stackItemAnimation(child, 10, 0, 100, 0).play();
-                        })(),
+                    return parallel([
+                        serial([
+                            stackItemAnimation(child, 0, -10, 100, index * stackItemDelay).play(),
+                            stackItemAnimation(child, -10, 10, 200, 0).play(),
+                            stackItemAnimation(child, 10, 0, 100, 0).play()
+                        ]),
                         stackItemOpacityAnimation.play()
                     ]);
                 }));
             };
 
-            await Promise.all([
+            await parallel([
                 backgroundAnimation.play(),
                 downBackgroundAnimation.play()
-            ]);
-            await Promise.all([
+            ])
+            await parallel([
                 welcomeOneAnimation.play(),
                 welcomeTwoAnimation.play(),
                 welcomeThreeAnimation.play()
-            ]);
-            await Promise.all([
+            ])
+            await parallel([
                 iamImageAnimation.play(),
                 iamImageLabelAnimation.play()
-            ]);
+            ])
 
 
             await stackLabelAnimation.play();

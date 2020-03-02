@@ -19,22 +19,22 @@
 </template>
 
 <script>
-    import { Animation, TimingFunctions, createOne, createMultiple } from '~/libs/animation';
+    import {Animation, TimingFunctions, createOne, createMultiple, parallel} from '~/libs/animation';
     import CoolInput from '~/components/form/CoolInput';
 
     const opacityAnimation = createOne('opacity', 0, 1, 800, {
         timingFunction: TimingFunctions.easeIn
     });
     const sideExistAnimation = (side) => createMultiple([
-        { prop: 'opacity', from: 0, to: 1, duration: 500 },
-        { prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${ v }px` }
+        {prop: 'opacity', from: 0, to: 1, duration: 500},
+        {prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${v}px`}
     ], {
         timingFunction: TimingFunctions.easeInOut
     });
 
     export default {
         name: "StepTwo",
-        components: { CoolInput },
+        components: {CoolInput},
         data() {
             return {
                 name: '',
@@ -44,14 +44,14 @@
         async mounted() {
             await this.$store.dispatch('guest/loadFromLocalStorage');
             const name = this.$store.state.guest.name;
-            if (name){
+            if (name) {
                 const backgroundAnimation = new Animation(this.$refs['background-driver'],
                     createMultiple([
-                        { prop: 'width', from: 100, to: 0 },
-                        { prop: 'left', from: 0, to: 100 }
+                        {prop: 'width', from: 100, to: 0},
+                        {prop: 'left', from: 0, to: 100}
                     ], {
                         duration: 1000,
-                        maskFunction: (v) => `${ v }%`,
+                        maskFunction: (v) => `${v}%`,
                         timingFunction: TimingFunctions.easeInOut
                     })
                 );
@@ -61,27 +61,27 @@
             } else {
                 const backgroundAnimation = new Animation(this.$refs['background-driver'],
                     createMultiple([
-                        { prop: 'width', from: 100, to: 65 },
-                        { prop: 'left', from: 0, to: 35 }
+                        {prop: 'width', from: 100, to: 65},
+                        {prop: 'left', from: 0, to: 35}
                     ], {
                         duration: 1000,
-                        maskFunction: (v) => `${ v }%`,
+                        maskFunction: (v) => `${v}%`,
                         timingFunction: TimingFunctions.easeInOut
                     }),
-                    { delay: 500 }
+                    {delay: 500}
                 );
 
-                const welcomeOneAnimation = new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), { delay: 200 });
-                const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), { delay: 400 });
+                const welcomeOneAnimation = new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), {delay: 200});
+                const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), {delay: 400});
                 const inputNameAnimation = new Animation(this.$refs['name-input'].$el, opacityAnimation, {
-                    beforeHooks: { visibility: 'visible' }
+                    beforeHooks: {visibility: 'visible'}
                 });
 
                 await backgroundAnimation.play();
-                await Promise.all([
+                await parallel([
                     welcomeOneAnimation.play(),
                     welcomeTwoAnimation.play()
-                ]);
+                ])
                 await inputNameAnimation.play();
                 this.ready = true;
             }
@@ -99,19 +99,19 @@
 
                     const backgroundAnimation = new Animation(this.$refs['background-driver'],
                         createMultiple([
-                            { prop: 'width', from: 65, to: 0 },
-                            { prop: 'left', from: 35, to: 100 }
+                            {prop: 'width', from: 65, to: 0},
+                            {prop: 'left', from: 35, to: 100}
                         ], {
                             duration: 1500,
-                            maskFunction: (v) => `${ v }%`,
+                            maskFunction: (v) => `${v}%`,
                             timingFunction: TimingFunctions.easeInOut
                         })
                     );
 
-                    const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], opacityAnimation, { speed: 2 });
-                    const inputNameAnimation = new Animation(this.$refs['name-input'].$el, opacityAnimation, { speed: 2 });
+                    const welcomeTwoAnimation = new Animation(this.$refs['welcome-two'], opacityAnimation, {speed: 2});
+                    const inputNameAnimation = new Animation(this.$refs['name-input'].$el, opacityAnimation, {speed: 2});
 
-                    await Promise.all([
+                    await parallel([
                         backgroundAnimation.play(),
                         welcomeTwoAnimation.play(true),
                         inputNameAnimation.play(true)
