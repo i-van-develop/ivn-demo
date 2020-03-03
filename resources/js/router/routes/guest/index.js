@@ -14,5 +14,13 @@ export default [
     {
         path: 'step-three',
         component: StepThree
+    },
+    {
+        path: '*',
+        redirect: 'step-one'
+    },
+    {
+        path: '',
+        redirect: 'step-one'
     }
 ]

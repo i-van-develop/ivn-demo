@@ -1,5 +1,7 @@
 import guestRoutes from './guest'
+import mainRoutes from './main'
 import Guest from '~/layouts/Guest/Guest'
+import Main from '~/layouts/Main/Main'
 
 export default [
     {
@@ -8,7 +10,8 @@ export default [
         children: guestRoutes
     },
     {
-        path: '*',
-        redirect: '/guest/step-one'
+        path: '/',
+        component: Main,
+        children: mainRoutes
     }
 ]
