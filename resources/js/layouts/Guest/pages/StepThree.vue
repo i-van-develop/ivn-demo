@@ -44,8 +44,6 @@
         createOne,
         TimingFunctions,
         Animation,
-        parallel,
-        serial,
         AnimationSupervisor
     } from '~/libs/animation';
     import {mapState} from 'vuex';
@@ -144,32 +142,31 @@
                             speed: 2,
                             delay: index * stackItemDelay
                         }));
-                    return parallel([
-                        serial([
-                            stackItemAnimation(child, 0, -10, 100, index * stackItemDelay).play(),
-                            stackItemAnimation(child, -10, 10, 200, 0).play(),
-                            stackItemAnimation(child, 10, 0, 100, 0).play()
-                        ]),
+                    return Promise.all([
+                        (async () => {
+                            await stackItemAnimation(child, 0, -10, 100, index * stackItemDelay).play();
+                            await stackItemAnimation(child, -10, 10, 200, 0).play();
+                            await stackItemAnimation(child, 10, 0, 100, 0).play();
+                        })(),
                         stackItemOpacityAnimation.play()
                     ]);
                 }));
             };
 
-            try{
-                await parallel([
+            try {
+                await Promise.all([
                     backgroundAnimation.play(),
                     downBackgroundAnimation.play()
                 ])
-                await parallel([
+                await Promise.all([
                     welcomeOneAnimation.play(),
                     welcomeTwoAnimation.play(),
                     welcomeThreeAnimation.play()
                 ])
-                await parallel([
+                await Promise.all([
                     iamImageAnimation.play(),
                     iamImageLabelAnimation.play()
                 ])
-
 
                 await stackLabelAnimation.play();
                 await stackAnimation(this.$refs['technologies']);
@@ -178,7 +175,6 @@
                 this.animationSupervisor.clearAll();
                 this.canClick = true;
             } catch (e) {
-                console.log('HZ');
             }
         },
         methods: {

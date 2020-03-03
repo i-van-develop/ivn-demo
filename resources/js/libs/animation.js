@@ -20,14 +20,6 @@ export const createMultiple = (transitions, {duration, delay, maskFunction, timi
     });
 };
 
-export const parallel = (animations) => Promise.all(animations);
-
-export const serial = (animations) => (async () => {
-    for (let i = 0; i < animations.length; ++i) {
-        await animations[i];
-    }
-})();
-
 export class AnimationSupervisor {
     constructor() {
         this._animations = [];

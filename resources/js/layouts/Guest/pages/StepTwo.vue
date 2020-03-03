@@ -24,7 +24,6 @@
         TimingFunctions,
         createOne,
         createMultiple,
-        parallel,
         AnimationSupervisor
     } from '~/libs/animation';
     import CoolInput from '~/components/form/CoolInput';
@@ -100,7 +99,7 @@
 
                 try {
                     await backgroundAnimation.play();
-                    await parallel([
+                    await Promise.all([
                         welcomeOneAnimation.play(),
                         welcomeTwoAnimation.play()
                     ])
@@ -141,7 +140,7 @@
                         new Animation(this.$refs['name-input'].$el, opacityAnimation, {speed: 2}));
 
                     try{
-                        await parallel([
+                        await Promise.all([
                             backgroundAnimation.play(),
                             welcomeTwoAnimation.play(true),
                             inputNameAnimation.play(true)
