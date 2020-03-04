@@ -101,52 +101,53 @@
             this.animationSupervisor.stopAll();
         },
         async mounted() {
-            const backgroundAnimation = this.animationSupervisor.add(new Animation(this.$refs['background-driver'],
+            const mountedAS = this.animationSupervisor.addSupervisor(new AnimationSupervisor());
+            const backgroundAnimation = mountedAS.add(new Animation(this.$refs['background-driver'],
                 createOne('height', 0, 100, 1000, {
                     timingFunction: TimingFunctions.easeInOut,
                     maskFunction: (v) => `${ v }%`,
                     delay: 300
                 })));
-            const downBackgroundAnimation = this.animationSupervisor.add(new Animation(this.$refs['down-background-driver'],
+            const downBackgroundAnimation = mountedAS.add(new Animation(this.$refs['down-background-driver'],
                 createOne('height', 0, 100, 1000, {
                     timingFunction: TimingFunctions.easeInOut,
                     maskFunction: (v) => `${ v }%`,
                     delay: 300
                 })));
 
-            const welcomeOneAnimation = this.animationSupervisor.add(
+            const welcomeOneAnimation = mountedAS.add(
                 new Animation(this.$refs['welcome-one'], sideExistAnimation('left')));
-            const welcomeTwoAnimation = this.animationSupervisor.add(
+            const welcomeTwoAnimation = mountedAS.add(
                 new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), {
                     delay: 150
                 }));
-            const welcomeThreeAnimation = this.animationSupervisor.add(
+            const welcomeThreeAnimation = mountedAS.add(
                 new Animation(this.$refs['welcome-three'], sideExistAnimation('left'), {
                     delay: 300
                 }));
 
-            const iamImageAnimation = this.animationSupervisor.add(
+            const iamImageAnimation = mountedAS.add(
                 new Animation(this.$refs['iam-image'], opacityAnimation));
-            const iamImageLabelAnimation = this.animationSupervisor.add(
+            const iamImageLabelAnimation = mountedAS.add(
                 new Animation(this.$refs['iam-image-label'], opacityAnimation));
 
-            const stackLabelAnimation = this.animationSupervisor.add(
+            const stackLabelAnimation = mountedAS.add(
                 new Animation(this.$refs['stack-label'], opacityAnimation, { speed: 2 }));
 
             const stackAnimation = (rootElem) => {
                 const children = (rootElem && rootElem.children) ? [ ...rootElem.children ] : [];
                 return Promise.all(children.map((child, index) => {
                     const stackItemDelay = 200;
-                    const stackItemOpacityAnimation = this.animationSupervisor.add(
+                    const stackItemOpacityAnimation = mountedAS.add(
                         new Animation(child, opacityAnimation, {
                             speed: 2,
                             delay: index * stackItemDelay
                         }));
                     return Promise.all([
                         (async () => {
-                            await stackItemAnimation(child, 0, -10, 100, index * stackItemDelay).play();
-                            await stackItemAnimation(child, -10, 10, 200, 0).play();
-                            await stackItemAnimation(child, 10, 0, 100, 0).play();
+                            await mountedAS.add(stackItemAnimation(child, 0, -10, 100, index * stackItemDelay)).play();
+                            await mountedAS.add(stackItemAnimation(child, -10, 10, 200, 0)).play();
+                            await mountedAS.add(stackItemAnimation(child, 10, 0, 100, 0)).play();
                         })(),
                         stackItemOpacityAnimation.play()
                     ]);
@@ -172,7 +173,7 @@
                 await stackAnimation(this.$refs['technologies']);
                 await stackAnimation(this.$refs['tech-lang']);
 
-                this.animationSupervisor.clearAll();
+                this.animationSupervisor.removeSupervisor(mountedAS);
                 this.canClick = true;
             } catch (e) {
             }
@@ -183,12 +184,15 @@
                     const elem = event.target;
                     if (!elem._isAnimate) {
                         elem._isAnimate = true;
-
-                        await stackItemAnimation(elem, 0, -10, 150).play();
-                        await stackItemAnimation(elem, -10, 10, 300).play();
-                        await stackItemAnimation(elem, 10, 0, 150).play();
-
-                        elem._isAnimate = false;
+                        const stackItemClickAS = this.animationSupervisor.addSupervisor(new AnimationSupervisor());
+                        try {
+                            await stackItemClickAS.add(stackItemAnimation(elem, 0, -10, 150)).play();
+                            await stackItemClickAS.add(stackItemAnimation(elem, -10, 10, 300)).play();
+                            await stackItemClickAS.add(stackItemAnimation(elem, 10, 0, 150)).play();
+                            this.animationSupervisor.removeSupervisor(stackItemClickAS);
+                            elem._isAnimate = false;
+                        } catch (e) {
+                        }
                     }
                 }
             }

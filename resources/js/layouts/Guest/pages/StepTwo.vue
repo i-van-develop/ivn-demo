@@ -52,10 +52,11 @@
             this.animationSupervisor.stopAll();
         },
         async mounted() {
+            const mountedAS = this.animationSupervisor.addSupervisor(new AnimationSupervisor());
             await this.$store.dispatch('guest/loadFromLocalStorage');
             const name = this.$store.state.guest.name;
             if (name) {
-                const backgroundAnimation = this.animationSupervisor.add(
+                const backgroundAnimation = mountedAS.add(
                     new Animation(this.$refs['background-driver'],
                         createMultiple([
                             { prop: 'width', from: 100, to: 0 },
@@ -69,13 +70,12 @@
 
                 try {
                     await backgroundAnimation.play();
-                    this.animationSupervisor.clearAll();
+                    this.animationSupervisor.removeSupervisor(mountedAS);
                     await this.$router.push('/guest/step-three');
                 } catch (e) {
-
                 }
             } else {
-                const backgroundAnimation = this.animationSupervisor.add(
+                const backgroundAnimation = mountedAS.add(
                     new Animation(this.$refs['background-driver'],
                         createMultiple([
                             { prop: 'width', from: 100, to: 65 },
@@ -88,11 +88,11 @@
                         { delay: 500 }
                     ));
 
-                const welcomeOneAnimation = this.animationSupervisor.add(
+                const welcomeOneAnimation = mountedAS.add(
                     new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), { delay: 200 }));
-                const welcomeTwoAnimation = this.animationSupervisor.add(
+                const welcomeTwoAnimation = mountedAS.add(
                     new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), { delay: 400 }));
-                const inputNameAnimation = this.animationSupervisor.add(
+                const inputNameAnimation = mountedAS.add(
                     new Animation(this.$refs['name-input'].$el, opacityAnimation, {
                         beforeHooks: { visibility: 'visible' }
                     }));
@@ -104,10 +104,9 @@
                         welcomeTwoAnimation.play()
                     ]);
                     await inputNameAnimation.play();
-                    this.animationSupervisor.clearAll();
+                    this.animationSupervisor.removeSupervisor(mountedAS);
                     this.ready = true;
                 } catch (e) {
-
                 }
             }
         },
@@ -119,10 +118,11 @@
         methods: {
             async nextStep() {
                 if (this.nameValid && this.ready) {
+                    const nextStepAS = this.animationSupervisor.addSupervisor(new AnimationSupervisor());
                     this.ready = false;
                     await this.$store.dispatch('guest/setName', this.name);
 
-                    const backgroundAnimation = this.animationSupervisor.add(
+                    const backgroundAnimation = nextStepAS.add(
                         new Animation(this.$refs['background-driver'],
                             createMultiple([
                                 { prop: 'width', from: 65, to: 0 },
@@ -134,9 +134,9 @@
                             })
                         ));
 
-                    const welcomeTwoAnimation = this.animationSupervisor.add(
+                    const welcomeTwoAnimation = nextStepAS.add(
                         new Animation(this.$refs['welcome-two'], opacityAnimation, { speed: 2 }));
-                    const inputNameAnimation = this.animationSupervisor.add(
+                    const inputNameAnimation = nextStepAS.add(
                         new Animation(this.$refs['name-input'].$el, opacityAnimation, { speed: 2 }));
 
                     try {
@@ -145,10 +145,9 @@
                             welcomeTwoAnimation.play(true),
                             inputNameAnimation.play(true)
                         ]);
-                        this.animationSupervisor.clearAll();
+                        this.animationSupervisor.removeSupervisor(nextStepAS);
                         await this.$router.push('/guest/step-three');
                     } catch (e) {
-
                     }
                 }
             }

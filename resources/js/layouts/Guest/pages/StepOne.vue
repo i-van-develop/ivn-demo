@@ -44,7 +44,6 @@
                 this.animationSupervisor.removeSupervisor(mountedAS);
                 await this.nextStep();
             } catch (e) {
-                console.log('force break');
             }
         },
         methods: {
@@ -68,7 +67,6 @@
                     this.animationSupervisor.removeSupervisor(nextStepAS);
                     await this.$router.push('/guest/step-two');
                 } catch (e) {
-                    console.log('force break');
                 }
             }
         }
