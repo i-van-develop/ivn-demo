@@ -25,12 +25,13 @@
             this.animationSupervisor.stopAll();
         },
         async mounted() {
-            const nameAnimation = this.animationSupervisor.add(new Animation(this.$refs['name'], opacityAnimation, {
+            const mountedAS = this.animationSupervisor.addSupervisor(new AnimationSupervisor());
+            const nameAnimation = mountedAS.add(new Animation(this.$refs['name'], opacityAnimation, {
                 beforeHooks: {visibility: 'visible'},
                 delay: 300
             }));
 
-            const backgroundAnimation = this.animationSupervisor.add(new Animation(this.$refs['background-driver'],
+            const backgroundAnimation = mountedAS.add(new Animation(this.$refs['background-driver'],
                 createOne('width', 0, 65, 3000, {
                     maskFunction: (v) => `${v}%`,
                     timingFunction: TimingFunctions.easeInOut
@@ -40,19 +41,20 @@
             try {
                 await nameAnimation.play();
                 await backgroundAnimation.play();
-                this.animationSupervisor.stopAll();
+                this.animationSupervisor.removeSupervisor(mountedAS);
                 await this.nextStep();
             } catch (e) {
-
+                console.log('force break')
             }
         },
         methods: {
             async nextStep() {
-                const welcomeAnimation = this.animationSupervisor.add(
+                const nextStepAS = this.animationSupervisor.addSupervisor(new AnimationSupervisor());
+                const welcomeAnimation = nextStepAS.add(
                     new Animation(this.$refs['welcome'], opacityAnimation, {
                         speed: 2, delay: 2000
                     }));
-                const backgroundAnimation = this.animationSupervisor.add(
+                const backgroundAnimation = nextStepAS.add(
                     new Animation(this.$refs['background-driver'],
                         createOne('width', 65, 100, 1000, {
                             maskFunction: (v) => `${v}%`,
@@ -63,10 +65,10 @@
                 try {
                     await welcomeAnimation.play(true);
                     await backgroundAnimation.play();
-                    this.animationSupervisor.stopAll();
+                    this.animationSupervisor.removeSupervisor(nextStepAS);
                     await this.$router.push('/guest/step-two');
                 } catch (e) {
-
+                    console.log('force break')
                 }
             }
         }

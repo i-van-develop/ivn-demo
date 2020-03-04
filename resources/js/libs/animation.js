@@ -23,19 +23,38 @@ export const createMultiple = (transitions, {duration, delay, maskFunction, timi
 export class AnimationSupervisor {
     constructor() {
         this._animations = [];
+        this._supervisors = [];
     }
 
-    add(animation){
+    add(animation) {
         this._animations.push(animation);
         return animation;
     }
-    stopAll(){
+
+    stopAll() {
+        this._supervisors.forEach(supervisor => {
+            supervisor.stopAll();
+        });
         this._animations.forEach(animation => {
             animation.stop();
-        })
+        });
     }
-    clearAll(){
+
+    clearAll() {
         this._animations = [];
+        this._supervisors.forEach(supervisor => {
+            supervisor.clearAll()
+        });
+        this._supervisors = [];
+    }
+
+    addSupervisor(supervisor) {
+        this._supervisors.push(supervisor);
+        return supervisor;
+    }
+
+    removeSupervisor(supervisor) {
+        this._supervisors = this._supervisors.filter(_supervisor => _supervisor !== supervisor);
     }
 }
 
@@ -116,7 +135,7 @@ export class Animation {
     }
 
     _step() {
-        if (!this.isPlaying) {
+        if (!this.el || !this.isPlaying || !this.el.parentNode) {
             this._promiseCallback(this.promiseCallbacks.reject);
             return;
         }
