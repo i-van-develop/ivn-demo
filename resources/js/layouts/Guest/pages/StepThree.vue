@@ -46,15 +46,15 @@
         Animation,
         AnimationSupervisor
     } from '~/libs/animation';
-    import {mapState} from 'vuex';
+    import { mapState } from 'vuex';
     import store from '~/store';
 
     const opacityAnimation = createOne('opacity', 0, 1, 1000, {
         timingFunction: TimingFunctions.easeIn
     });
     const sideExistAnimation = (side) => createMultiple([
-        {prop: 'opacity', from: 0, to: 1, duration: 500},
-        {prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${v}px`}
+        { prop: 'opacity', from: 0, to: 1, duration: 500 },
+        { prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${ v }px` }
     ], {
         timingFunction: TimingFunctions.easeInOut
     });
@@ -62,7 +62,7 @@
     const stackItemAnimation = (elem, yFrom, yTo, duration, delay = 0) => new Animation(elem,
         createOne('transform', yFrom, yTo, duration, {
             delay,
-            maskFunction: (v) => `translateY(${v}px)`
+            maskFunction: (v) => `translateY(${ v }px)`
         })
     );
 
@@ -87,10 +87,10 @@
                 ]
             };
         },
-        computed: mapState('guest', ['name']),
+        computed: mapState('guest', [ 'name' ]),
         async beforeRouteEnter(to, from, next) {
             await store.dispatch('guest/loadFromLocalStorage');
-            const {name} = store.state.guest;
+            const { name } = store.state.guest;
             if (!name) {
                 next('/guest/step-two');
             } else {
@@ -104,13 +104,13 @@
             const backgroundAnimation = this.animationSupervisor.add(new Animation(this.$refs['background-driver'],
                 createOne('height', 0, 100, 1000, {
                     timingFunction: TimingFunctions.easeInOut,
-                    maskFunction: (v) => `${v}%`,
+                    maskFunction: (v) => `${ v }%`,
                     delay: 300
                 })));
             const downBackgroundAnimation = this.animationSupervisor.add(new Animation(this.$refs['down-background-driver'],
                 createOne('height', 0, 100, 1000, {
                     timingFunction: TimingFunctions.easeInOut,
-                    maskFunction: (v) => `${v}%`,
+                    maskFunction: (v) => `${ v }%`,
                     delay: 300
                 })));
 
@@ -131,10 +131,10 @@
                 new Animation(this.$refs['iam-image-label'], opacityAnimation));
 
             const stackLabelAnimation = this.animationSupervisor.add(
-                new Animation(this.$refs['stack-label'], opacityAnimation, {speed: 2}));
+                new Animation(this.$refs['stack-label'], opacityAnimation, { speed: 2 }));
 
             const stackAnimation = (rootElem) => {
-                const children = (rootElem && rootElem.children) ? [...rootElem.children] : [];
+                const children = (rootElem && rootElem.children) ? [ ...rootElem.children ] : [];
                 return Promise.all(children.map((child, index) => {
                     const stackItemDelay = 200;
                     const stackItemOpacityAnimation = this.animationSupervisor.add(
@@ -157,16 +157,16 @@
                 await Promise.all([
                     backgroundAnimation.play(),
                     downBackgroundAnimation.play()
-                ])
+                ]);
                 await Promise.all([
                     welcomeOneAnimation.play(),
                     welcomeTwoAnimation.play(),
                     welcomeThreeAnimation.play()
-                ])
+                ]);
                 await Promise.all([
                     iamImageAnimation.play(),
                     iamImageLabelAnimation.play()
-                ])
+                ]);
 
                 await stackLabelAnimation.play();
                 await stackAnimation(this.$refs['technologies']);

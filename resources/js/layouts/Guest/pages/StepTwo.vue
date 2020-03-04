@@ -32,15 +32,15 @@
         timingFunction: TimingFunctions.easeIn
     });
     const sideExistAnimation = (side) => createMultiple([
-        {prop: 'opacity', from: 0, to: 1, duration: 500},
-        {prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${v}px`}
+        { prop: 'opacity', from: 0, to: 1, duration: 500 },
+        { prop: side, from: -30, to: 0, duration: 800, maskFunction: (v) => `${ v }px` }
     ], {
         timingFunction: TimingFunctions.easeInOut
     });
 
     export default {
         name: "StepTwo",
-        components: {CoolInput},
+        components: { CoolInput },
         data() {
             return {
                 animationSupervisor: new AnimationSupervisor(),
@@ -58,11 +58,11 @@
                 const backgroundAnimation = this.animationSupervisor.add(
                     new Animation(this.$refs['background-driver'],
                         createMultiple([
-                            {prop: 'width', from: 100, to: 0},
-                            {prop: 'left', from: 0, to: 100}
+                            { prop: 'width', from: 100, to: 0 },
+                            { prop: 'left', from: 0, to: 100 }
                         ], {
                             duration: 1000,
-                            maskFunction: (v) => `${v}%`,
+                            maskFunction: (v) => `${ v }%`,
                             timingFunction: TimingFunctions.easeInOut
                         })
                     ));
@@ -78,23 +78,23 @@
                 const backgroundAnimation = this.animationSupervisor.add(
                     new Animation(this.$refs['background-driver'],
                         createMultiple([
-                            {prop: 'width', from: 100, to: 65},
-                            {prop: 'left', from: 0, to: 35}
+                            { prop: 'width', from: 100, to: 65 },
+                            { prop: 'left', from: 0, to: 35 }
                         ], {
                             duration: 1000,
-                            maskFunction: (v) => `${v}%`,
+                            maskFunction: (v) => `${ v }%`,
                             timingFunction: TimingFunctions.easeInOut
                         }),
-                        {delay: 500}
+                        { delay: 500 }
                     ));
 
                 const welcomeOneAnimation = this.animationSupervisor.add(
-                    new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), {delay: 200}));
+                    new Animation(this.$refs['welcome-one'], sideExistAnimation('left'), { delay: 200 }));
                 const welcomeTwoAnimation = this.animationSupervisor.add(
-                    new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), {delay: 400}));
+                    new Animation(this.$refs['welcome-two'], sideExistAnimation('right'), { delay: 400 }));
                 const inputNameAnimation = this.animationSupervisor.add(
                     new Animation(this.$refs['name-input'].$el, opacityAnimation, {
-                        beforeHooks: {visibility: 'visible'}
+                        beforeHooks: { visibility: 'visible' }
                     }));
 
                 try {
@@ -102,7 +102,7 @@
                     await Promise.all([
                         welcomeOneAnimation.play(),
                         welcomeTwoAnimation.play()
-                    ])
+                    ]);
                     await inputNameAnimation.play();
                     this.animationSupervisor.clearAll();
                     this.ready = true;
@@ -125,21 +125,21 @@
                     const backgroundAnimation = this.animationSupervisor.add(
                         new Animation(this.$refs['background-driver'],
                             createMultiple([
-                                {prop: 'width', from: 65, to: 0},
-                                {prop: 'left', from: 35, to: 100}
+                                { prop: 'width', from: 65, to: 0 },
+                                { prop: 'left', from: 35, to: 100 }
                             ], {
                                 duration: 1500,
-                                maskFunction: (v) => `${v}%`,
+                                maskFunction: (v) => `${ v }%`,
                                 timingFunction: TimingFunctions.easeInOut
                             })
                         ));
 
                     const welcomeTwoAnimation = this.animationSupervisor.add(
-                        new Animation(this.$refs['welcome-two'], opacityAnimation, {speed: 2}));
+                        new Animation(this.$refs['welcome-two'], opacityAnimation, { speed: 2 }));
                     const inputNameAnimation = this.animationSupervisor.add(
-                        new Animation(this.$refs['name-input'].$el, opacityAnimation, {speed: 2}));
+                        new Animation(this.$refs['name-input'].$el, opacityAnimation, { speed: 2 }));
 
-                    try{
+                    try {
                         await Promise.all([
                             backgroundAnimation.play(),
                             welcomeTwoAnimation.play(true),

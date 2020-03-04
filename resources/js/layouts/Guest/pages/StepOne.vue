@@ -7,7 +7,7 @@
 </template>
 
 <script>
-    import {Animation, TimingFunctions, createOne, AnimationSupervisor} from '~/libs/animation';
+    import { Animation, TimingFunctions, createOne, AnimationSupervisor } from '~/libs/animation';
 
     const opacityAnimation = createOne('opacity', 0, 1, 800, {
         timingFunction: TimingFunctions.easeIn
@@ -27,13 +27,13 @@
         async mounted() {
             const mountedAS = this.animationSupervisor.addSupervisor(new AnimationSupervisor());
             const nameAnimation = mountedAS.add(new Animation(this.$refs['name'], opacityAnimation, {
-                beforeHooks: {visibility: 'visible'},
+                beforeHooks: { visibility: 'visible' },
                 delay: 300
             }));
 
             const backgroundAnimation = mountedAS.add(new Animation(this.$refs['background-driver'],
                 createOne('width', 0, 65, 3000, {
-                    maskFunction: (v) => `${v}%`,
+                    maskFunction: (v) => `${ v }%`,
                     timingFunction: TimingFunctions.easeInOut
                 })
             ));
@@ -44,7 +44,7 @@
                 this.animationSupervisor.removeSupervisor(mountedAS);
                 await this.nextStep();
             } catch (e) {
-                console.log('force break')
+                console.log('force break');
             }
         },
         methods: {
@@ -57,7 +57,7 @@
                 const backgroundAnimation = nextStepAS.add(
                     new Animation(this.$refs['background-driver'],
                         createOne('width', 65, 100, 1000, {
-                            maskFunction: (v) => `${v}%`,
+                            maskFunction: (v) => `${ v }%`,
                             timingFunction: TimingFunctions.easeInOut
                         })
                     ));
@@ -68,7 +68,7 @@
                     this.animationSupervisor.removeSupervisor(nextStepAS);
                     await this.$router.push('/guest/step-two');
                 } catch (e) {
-                    console.log('force break')
+                    console.log('force break');
                 }
             }
         }
