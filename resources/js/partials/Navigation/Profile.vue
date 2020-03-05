@@ -1,13 +1,21 @@
 <template>
-    <div class="profile">
+    <div class="profile" @click="openProfile">
         <span class="welcome">Guest</span>
         <font-awesome-icon icon="user"/>
     </div>
 </template>
 
 <script>
+    import SimpleModal from '~/modals/SimpleModal';
+    import '~/libs/modals';
+
     export default {
-        name: "Profile"
+        name: "Profile",
+        methods: {
+            openProfile(){
+                this.$modals.open(SimpleModal);
+            }
+        }
     };
 </script>
 
