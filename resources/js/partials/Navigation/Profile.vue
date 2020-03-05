@@ -6,14 +6,14 @@
 </template>
 
 <script>
-    import SimpleModal from '~/modals/SimpleModal';
+    import ProfilePopup from './../Profile/ProfilePopup';
     import '~/libs/modals';
 
     export default {
         name: "Profile",
         methods: {
             openProfile(){
-                this.$modals.open(SimpleModal);
+                this.$modals.open(ProfilePopup);
             }
         }
     };
