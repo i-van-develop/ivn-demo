@@ -30,9 +30,14 @@ class LoginController extends Controller
      */
     protected $redirectTo = RouteServiceProvider::HOME;
 
+    public function username()
+    {
+        return 'login';
+    }
+
     protected function authenticated(Request $request, $user)
     {
-        return $user->setVisible(['name','email']);
+        return $user->setVisible(['id', 'name', 'login', 'email']);
     }
 
     /**
