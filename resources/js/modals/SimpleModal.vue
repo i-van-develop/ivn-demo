@@ -58,8 +58,4 @@
         cursor: pointer;
         color:$danger;
     }
-
-    .modal-body{
-        padding: 10px;
-    }
 </style>
