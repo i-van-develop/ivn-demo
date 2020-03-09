@@ -1,6 +1,18 @@
 <template>
     <div class="input-wrap">
-        <div v-if="placeholder" :class="{'placeholder-up' : focused || value}" class="placeholder">{{ placeholder }}
+        <div v-if="placeholder"
+             :class="{
+                'placeholder-active' : focused || value,
+                'left' : placeholderPosition === 'left',
+                'left-top' : placeholderPosition === 'left-top',
+                'center' : placeholderPosition === 'center',
+                'right-top' : placeholderPosition === 'right-top',
+                'right' : placeholderPosition === 'right'
+                }"
+             class="placeholder"
+             :style="styles"
+        >
+            {{ placeholder }}
         </div>
         <input @focus="focused = true" @blur="focused = false" class="input" :type="type" :value="value"
                @input="$emit('input', $event.target.value)"/>
@@ -21,17 +33,41 @@
             value: {
                 type: String,
                 default: ''
+            },
+            placeholderPosition: {
+                type: String,
+                default: 'left' // other variants: left-top, center, right-top, right,
+            },
+            spacing: {
+                type: Number,
+                default: 5
             }
         },
         data() {
             return {
                 focused: false
             };
+        },
+        computed: {
+            styles(){
+                if (this.focused || this.value){
+                    const spacing = this.spacing;
+                    const position = this.placeholderPosition;
+                    switch (position) {
+                        case 'left': return `left: -${spacing}px;`;
+                        case 'left-top': return `top: -${spacing}px;`;
+                        case 'center': return `top: -${spacing}px;`;
+                        case 'right-top': return `top: -${spacing}px;`;
+                        case 'right': return `calc(100% + ${spacing}px);`;
+                    }
+                }
+                return '';
+            }
         }
     };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .input-wrap {
         min-width: 20px;
         min-height: 10px;
@@ -48,7 +84,6 @@
         box-sizing: border-box;
         font-size: 1em;
         outline: none;
-        /*text-align: center;*/
     }
 
     .placeholder {
@@ -58,18 +93,37 @@
         top: 50%;
         transform: translateX(-50%) translateY(-50%);
         font-size: 1em;
+        line-height: 1em;
 
         transition: opacity 300ms ease-in-out, transform 300ms ease-in-out, font-size 300ms ease-in-out, left 300ms ease-in-out, top 300ms ease-in-out;
     }
 
-    .placeholder-up {
+    .placeholder-active {
         opacity: 0.7;
         font-size: 0.7em;
-        /*top: 0;*/
-        /*transform: translateX(-50%) translateY(-100%);*/
 
-        left: -10px;
-        transform: translateX(-100%) translateY(-50%);
+        &.left {
+            transform: translateX(-100%) translateY(-50%);
+        }
+
+        &.left-top {
+            left: 0;
+            transform: translateX(0) translateY(-100%);
+        }
+
+        &.center {
+            transform: translateX(-50%) translateY(-50%);
+        }
+
+        &.right-top {
+            left: 100%;
+            transform: translateX(-100%) translateY(-50%);
+        }
+
+        &.right {
+            transform: translateX(0) translateY(-50%);
+        }
+
     }
 
 </style>
