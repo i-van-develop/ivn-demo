@@ -7,7 +7,10 @@ export default [
     {
         path: '/guest',
         component: Guest,
-        children: guestRoutes
+        children: guestRoutes,
+        meta: {
+            guest: true
+        }
     },
     {
         path: '/',
