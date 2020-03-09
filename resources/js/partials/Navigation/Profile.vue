@@ -1,6 +1,6 @@
 <template>
     <div class="profile" @click="openProfile">
-        <span class="welcome">Guest</span>
+        <span class="welcome">{{realName}}</span>
         <font-awesome-icon icon="user"/>
     </div>
 </template>
@@ -11,6 +11,26 @@
 
     export default {
         name: "Profile",
+        data(){
+            return{
+                name:'Guest'
+            };
+        },
+        computed:{
+            realName(){
+                if (this.$store.state.profile.isAuth) {
+                    return this.$store.state.profile.data.name;
+                }
+                return this.name;
+            }
+        },
+        async mounted() {
+            await this.$store.dispatch('guest/loadFromLocalStorage');
+            const guestName = this.$store.state.guest.name;
+            if (guestName){
+                this.name = guestName;
+            }
+        },
         methods: {
             openProfile(){
                 this.$modals.open(ProfilePopup);
@@ -30,6 +50,7 @@
         background-color: white;
         font-size: 16px;
         padding: 0 10px;
+        cursor: pointer;
     }
 
     .welcome{
